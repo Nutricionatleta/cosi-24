@@ -73,10 +73,10 @@ window.DATOS = {
     },
     {
       pregunta: "Estoy con el portátil y me hablas. ¿Qué te contesto?",
-      opciones: ["«Dime, amor, te escucho»", "«Dame cinco minutos»", "«Ahora no»", "«¿Eh?»", "No contesto 🙊"],
-      correcta: 1,
-      siAcierta: "Culpable. Prometo que este año serán cuatro minutos 🙈",
-      siFalla: "Venga ya, sabes perfectamente cuál es 😅",
+      opciones: ["«Dime, amor, te escucho»", "«Dame cinco minutos»", "«Ahora no»", "«¿Eh?»", "No contesto 😅"],
+      correcta: 4,
+      siAcierta: "Culpable. Ni me entero… prometo mejorar 🙈",
+      siFalla: "Venga ya, si sabes que ni te contesto 😅",
     },
     {
       pregunta: "¿Qué me regalaste tú por mi cumple?",
