@@ -460,7 +460,7 @@
           <canvas aria-label="Rasca para descubrir"></canvas>
         </div>
       </div>
-      <div class="carta-final oculto">${D.carta.map((p) => `<p>${p}</p>`).join('')}<p class="firma">${D.firma}</p></div>
+      <div class="carta-final oculto">${D.carta.map((p) => `<p>${p}</p>`).join('')}<p class="firma">${D.firma}</p><a class="btn-nieve" href="nieve/">❄️ ¿Cuándo lo canjeamos? Mira la nieve</a></div>
     </section>`);
     const huecos = el.querySelector('.huecos'), fb = el.querySelector('.feedback');
     const botFichas = [...el.querySelectorAll('.ficha')], botHuecos = [...el.querySelectorAll('.hueco')];

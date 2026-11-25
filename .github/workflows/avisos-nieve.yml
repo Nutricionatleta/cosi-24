@@ -1,0 +1,37 @@
+name: Avisos de nieve
+
+on:
+  schedule:
+    - cron: '30 6 * * *'   # cada día ~7:30-8:30 en España
+  workflow_dispatch:
+    inputs:
+      prueba:
+        description: 'Mandar un aviso de prueba aunque no haya nieve'
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+concurrency: avisos-nieve
+
+jobs:
+  avisar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Mirar la previsión y avisar
+        run: node nieve/avisos.js
+        env:
+          NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
+          PRUEBA: ${{ inputs.prueba }}
+      - name: Guardar qué se ha avisado
+        run: |
+          git config user.name "avisos-nieve"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add nieve/avisos-estado.json
+          git diff --cached --quiet || (git commit -m "Avisos de nieve: estado" && git push)
