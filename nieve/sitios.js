@@ -56,6 +56,9 @@ export const SITIOS = [
     ] },
 ];
 
+// Presupuesto del finde. Material = alquiler aproximado de equipo de skimo (esquís, botas, pieles, bastones + ARVA/pala/sonda).
+export const PRESUPUESTO = { alojamiento: 300, noches: 2, material: { personas: 2, dias: 2, porDia: 45 } };
+
 // Festivos que pueden alargar el finde (se marcan en el calendario).
 export const FESTIVOS = {
   '2026-12-08': 'Inmaculada', '2026-12-25': 'Navidad', '2026-12-26': 'Sant Esteve',
