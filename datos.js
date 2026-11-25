@@ -130,7 +130,7 @@ window.DATOS = {
     titulo: "Un fin de semana de skimo",
     subtitulo: "Esquí de montaña · tú y yo",
     detalles: [
-      "🛏️ Dos días y una noche en la montaña",
+      "🛏️ Un finde entero en la montaña: dos noches",
       "🎿 Ruta y material: de eso me encargo yo",
     ],
     validez: "Válido en cuanto caiga la primera nevada buena ❄️",
