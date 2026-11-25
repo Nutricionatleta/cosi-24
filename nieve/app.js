@@ -187,10 +187,13 @@ function vistaPrevision() {
           : `${foco.nieve7 ? `❄️ +${foco.nieve7} cm · ` : ''}🚗 ${s.coche}`}</small></div>
       <button class="f-btn ${si ? 'hecho' : ''}" data-sitio="${s.id}">${si ? '✓ Elegido' : 'Elegir'}</button>
     </section>
-    <p class="seccion">🗺️ Rutas de skimo</p><ul class="rutas">${(s.rutas || []).map((r) => `<li><a href="${r.url}" target="_blank" rel="noopener">
-      <span class="r-txt"><b>${r.nombre}</b><small>${[r.dificultad, `↗ ${r.desnivel} m`, r.horas, `desde ${r.salida}`].filter(Boolean).join(' · ')}</small></span><i>›</i></a></li>`).join('')}
-      <li><a href="https://www.google.com/search?q=${encodeURIComponent(`wikiloc esquí de montaña ${s.pueblo}`)}" target="_blank" rel="noopener">
-      <span class="r-txt"><b>${s.rutas?.length ? 'Más rutas' : 'Buscar rutas'} en Wikiloc</b><small>Tracks de gente que ha subido por la zona</small></span><i>›</i></a></li></ul>
+    <p class="seccion">⛰️ Rutas de skimo <span>${s.nombre}</span></p>
+    <div class="rutas">${(s.rutas || []).map((r) => `<a class="ruta" href="${r.url}" target="_blank" rel="noopener">
+      <span class="r-ico">⛰️</span><span class="r-txt"><b>${r.nombre}</b>
+        <span class="chips"><i>↗ ${r.desnivel} m</i>${r.horas ? `<i>⏱ ${r.horas}</i>` : ''}${r.dificultad ? `<i>${r.dificultad}</i>` : ''}<i>📍 ${r.salida.replace(/^el /, '')}</i></span></span></a>`).join('')}
+      ${s.rutas?.length ? '' : '<p class="r-vacio">Aún no tenemos rutas contrastadas aquí.</p>'}
+      <a class="ruta mas" href="https://www.google.com/search?q=${encodeURIComponent(`wikiloc esquí de montaña ${s.pueblo}`)}" target="_blank" rel="noopener">
+      <span class="r-ico">🔎</span><span class="r-txt"><b>${s.rutas?.length ? 'Más rutas' : 'Buscar rutas'} en Wikiloc</b></span></a></div>
     <p class="pie">Antes de salir, mirad el riesgo de aludes: ${ALUDES.map((a) => `<a href="${a.url}" target="_blank" rel="noopener">${a.nombre.split(' (')[0]}</a>`).join(' · ')}<br>
       Open-Meteo · ${hace(datos.hora)} · <button class="enl" data-accion="recargar">actualizar</button></p>`;
 }
