@@ -8,14 +8,15 @@
 export const ORIGEN = 'Barcelona';
 
 export const SITIOS = [
-  { id: 'nuria', nombre: 'Vall de Núria', zona: 'Ripollès', lat: 42.3975, lon: 2.1525, alt: 2100, coche: '1 h 45 + cremallera',
+  // desvio = px para separar en el mapa burbujas que caen muy juntas
+  { id: 'nuria', nombre: 'Vall de Núria', zona: 'Ripollès', lat: 42.3975, lon: 2.1525, alt: 2100, desvio: [-6, 0], coche: '1 h 45 + cremallera',
     web: 'https://pirineu365.cat/valldenuria/inici/', nota: 'Subida al Puigmal o a Noufonts desde el santuario.', pueblo: 'Queralbs',
     dormir: [
       { nombre: 'Hotel Vall de Núria', tipo: 'Hotel', emoji: '🏨', nota: 'En el mismo santuario: sales a esquiar desde la puerta.', busca: 'Hotel Vall de Núria' },
       { nombre: 'Alberg Pic de l’Àliga', tipo: 'Albergue', emoji: '🛖', nota: 'Albergue en lo alto del valle, con vistas a todo Núria.', busca: 'Alberg Pic de l\'Àliga Núria', refugio: true },
       { nombre: 'Casa rural en Queralbs', tipo: 'Casa rural', emoji: '🏡', nota: 'Pueblo de piedra al pie del cremallera.', busca: 'Queralbs' },
     ] },
-  { id: 'vallter', nombre: 'Vallter 2000', zona: 'Ripollès', lat: 42.4256, lon: 2.2647, alt: 2200, coche: '2 h 15',
+  { id: 'vallter', nombre: 'Vallter 2000', zona: 'Ripollès', lat: 42.4256, lon: 2.2647, alt: 2200, desvio: [10, 38], coche: '2 h 15',
     web: 'https://pirineu365.cat/vallter/inici/', nota: 'Circo bajo el Bastiments. De lo más cerca.', pueblo: 'Setcases',
     dormir: [
       { nombre: 'Refugi d’Ulldeter', tipo: 'Refugio', emoji: '⛺', nota: 'Refugio de montaña junto a la estación: lo más skimo que hay.', busca: 'Refugi d\'Ulldeter', refugio: true },
@@ -56,8 +57,11 @@ export const SITIOS = [
     ] },
 ];
 
-// Presupuesto del finde. Material = alquiler aproximado de equipo de skimo (esquís, botas, pieles, bastones + ARVA/pala/sonda).
-export const PRESUPUESTO = { alojamiento: 300, noches: 2, material: { personas: 2, dias: 2, porDia: 45 } };
+// Alojamiento: tope total para Booking (no se enseña en la app) y noches (viernes y sábado).
+export const PRESUPUESTO = { alojamiento: 300, noches: 2 };
+
+// Punto de salida que sale en el mapa.
+export const CASA = { nombre: 'Barcelona', lat: 41.3874, lon: 2.1686 };
 
 // Festivos que pueden alargar el finde (se marcan en el calendario).
 export const FESTIVOS = {

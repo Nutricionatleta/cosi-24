@@ -1,11 +1,10 @@
-import { SITIOS, ALUDES, FESTIVOS, PRESUPUESTO as P } from './sitios.js?v=3';
+import { SITIOS, ALUDES, FESTIVOS, CASA, PRESUPUESTO as P } from './sitios.js?v=4';
 import { urlPrevision, analizar, tablaFindes, estadoVale, etiqueta, puntuar, hoyISO, UMBRAL } from './motor.js?v=3';
 
 const app = document.getElementById('app');
 const K = { cache: 'cosi-nieve-v1', plan: 'cosi-plan-v1', tab: 'cosi-tab' };
 const VIGENCIA = 30 * 60e3, FINDES = 10;
 const NOCHES = P.noches, PRESUPUESTO = P.alojamiento;
-const MATERIAL = P.material.personas * P.material.dias * P.material.porDia;
 const URL_APP = 'https://nutricionatleta.github.io/cosi-24/nieve/';
 const TABS = [{ id: 'prevision', txt: 'Previsión', ico: '❄️' }, { id: 'calendario', txt: 'Calendario', ico: '📅' }, { id: 'alojamiento', txt: 'Alojamiento', ico: '🛏️' }];
 const PASOS = [['sab', 'calendario', 'Finde'], ['sitio', 'prevision', 'Sitio'], ['aloj', 'alojamiento', 'Dormir']];
@@ -73,11 +72,86 @@ function pintar() {
   if (datos.json) { const analisis = analizar(SITIOS, datos.json); calc = { analisis, tabla: tablaFindes(analisis), vale: estadoVale(analisis) }; }
   const vista = { prevision: vistaPrevision, calendario: vistaCalendario, alojamiento: vistaAlojamiento }[ui.tab];
   app.innerHTML = `
-    <header class="cab"><h1>Skimo 🎿</h1>${htmlVale()}</header>
+    <header class="cab"><div class="cab-top"><h1>Skimo 🎿</h1>${instalada() ? '' : '<button class="instalar" data-accion="instalar">📲 Instalar</button>'}</div>${htmlVale()}</header>
     ${htmlPlan()}
     <div class="vista ${ui.pintada !== ui.tab ? 'entra' : ''}">${vista()}</div>
     <nav class="menu">${TABS.map((t) => `<button data-ir="${t.id}" aria-current="${ui.tab === t.id}"><span>${t.ico}</span>${t.txt}</button>`).join('')}</nav>`;
   ui.pintada = ui.tab;
+  if (ui.tab === 'prevision') ponerMapa();
+}
+
+// ── mapa (Leaflet se carga solo al abrir la pestaña; el mapa se crea una vez y se reutiliza) ──
+let mapa = null, capa = null, mapaEl = null, leaflet = null;
+const enFoco = () => calc.analisis.find((a) => a.sitio.id === (ui.foco || plan.sitio)) || [...calc.analisis].sort((a, b) => b.base - a.base)[0];
+function cargarLeaflet() {
+  leaflet ??= new Promise((ok, mal) => {
+    const css = Object.assign(document.createElement('link'), { rel: 'stylesheet', href: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css' });
+    const js = Object.assign(document.createElement('script'), { src: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js', onload: () => ok(window.L), onerror: mal });
+    document.head.append(css, js);
+  });
+  return leaflet;
+}
+async function ponerMapa() {
+  const hueco = document.getElementById('hueco-mapa');
+  if (!hueco || !calc) return;
+  mapaEl ??= Object.assign(document.createElement('div'), { className: 'mapa' });
+  hueco.append(mapaEl);
+  let L;
+  try { L = await cargarLeaflet(); } catch { leaflet = null; mapaEl.innerHTML = '<p class="vacio">Sin conexión para el mapa</p>'; return; }
+  if (!mapa) {
+    mapa = L.map(mapaEl, { zoomSnap: 0.25, zoomControl: false, scrollWheelZoom: false, minZoom: 6, maxZoom: 12 });
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap' }).addTo(mapa);
+    L.control.zoom({ position: 'bottomright' }).addTo(mapa);
+    verTodos(false);
+    capa = L.layerGroup().addTo(mapa);
+  } else mapa.invalidateSize();
+  capa.clearLayers();
+  const icono = (html, clase = '') => L.divIcon({ className: `m ${clase}`, html, iconSize: [0, 0], iconAnchor: [0, 0] });
+  const foco = enFoco().sitio.id;
+  for (const an of calc.analisis) {
+    const s = an.sitio, p = plan.sab ? notaDe(plan.sab, s.id) : null;
+    const color = p ? etiqueta(p.nota).clase : an.base >= UMBRAL.base ? 'top' : an.base >= 15 ? 'bien' : 'no';
+    const [dx, dy] = s.desvio || [0, 0];
+    const html = `<div class="pin ${color} ${plan.sitio === s.id ? 'si' : ''} ${foco === s.id ? 'foco' : ''}" style="--dx:${dx}px;--dy:${dy}px">
+      <i class="punto"></i><span class="burbuja">${plan.sitio === s.id ? '✓ ' : ''}${(p || an).base}<small>cm</small></span></div>`;
+    L.marker([s.lat, s.lon], { icon: icono(html), zIndexOffset: foco === s.id ? 1000 : 0 })
+      .on('click', () => {
+        ui.foco = s.id; try { navigator.vibrate?.(8); } catch { /* nada */ }
+        mapa.flyTo([s.lat, s.lon], Math.max(mapa.getZoom(), 9), { duration: 0.6 });
+        pintar(); document.querySelector('.ficha')?.animate([{ transform: 'scale(.97)', opacity: 0.6 }, { transform: 'none', opacity: 1 }], 220);
+      }).addTo(capa);
+  }
+}
+function verTodos(animar = true) {
+  const b = SITIOS.map((s) => [s.lat, s.lon]);
+  if (animar) mapa.flyToBounds(b, { paddingTopLeft: [40, 48], paddingBottomRight: [40, 20], duration: 0.6 });
+  else mapa.fitBounds(b, { paddingTopLeft: [40, 48], paddingBottomRight: [40, 20] });
+}
+
+// ── instalar en la pantalla de inicio ────────────────────────
+let pedirInstalar = null;
+addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); pedirInstalar = e; });
+addEventListener('appinstalled', () => { document.querySelector('.hoja-fondo')?.remove(); pintar(); });
+function instalada() { return matchMedia('(display-mode: standalone)').matches || navigator.standalone === true; }
+const esIOS = /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+const ICO_COMPARTIR = '<svg class="ico-c" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12M7.5 7.5 12 3l4.5 4.5M6 11H5v10h14V11h-1" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+function abrirInstalar() {
+  document.querySelector('.hoja-fondo')?.remove();
+  const pasos = pedirInstalar ? '<button class="btn" data-instalar>📲 Instalar ahora</button>'
+    : esIOS ? `<ol class="pasos"><li><span>1</span><p>Abajo en Safari, toca <b>Compartir</b> ${ICO_COMPARTIR}</p></li>
+        <li><span>2</span><p>Baja y toca <b>«Añadir a pantalla de inicio»</b></p></li><li><span>3</span><p>Pulsa <b>Añadir</b> y listo ✅</p></li></ol>
+        <p class="mini">¿No ves Compartir? Abre este enlace en Safari.</p>`
+    : `<ol class="pasos"><li><span>1</span><p>Toca el menú <b>⋮</b> de arriba a la derecha</p></li>
+        <li><span>2</span><p>Toca <b>«Instalar aplicación»</b> o <b>«Añadir a pantalla de inicio»</b></p></li><li><span>3</span><p>Confirma y listo ✅</p></li></ol>`;
+  const fondo = Object.assign(document.createElement('div'), { className: 'hoja-fondo' });
+  fondo.innerHTML = `<div class="hoja" role="dialog" aria-label="Instalar Skimo"><img src="icono-180.png" alt="" class="h-icono">
+    <h2>Llévate Skimo al móvil</h2><p class="h-txt">Tendrás un icono con nuestra foto para elegir el finde y ver cuándo nieva ❄️</p>
+    ${pasos}<button class="btn sec" data-cerrar>Ahora no</button></div>`;
+  fondo.addEventListener('click', async (e) => {
+    if (e.target.closest('[data-instalar]') && pedirInstalar) { pedirInstalar.prompt(); await pedirInstalar.userChoice; pedirInstalar = null; fondo.remove(); return; }
+    if (e.target === fondo || e.target.closest('[data-cerrar]')) fondo.remove();
+  });
+  document.body.append(fondo);
 }
 
 function htmlVale() {
@@ -93,7 +167,6 @@ function htmlPlan() {
   return `<section class="plan ${completo ? 'completo' : ''}">
     <div class="slots">${PASOS.map(([k, tab, nombre]) => `<button class="slot ${valor[k] ? 'ok' : ''} ${ui.tab === tab ? 'aqui' : ''}" data-ir="${tab}">
       <small>${valor[k] ? '✓ ' : ''}${nombre}</small><b>${valor[k] || 'Elegir'}</b></button>`).join('')}</div>
-    <p class="gasto">💶 Dormir máx. ${PRESUPUESTO} € + material ~${MATERIAL} € = <b>~${PRESUPUESTO + MATERIAL} €</b></p>
     ${completo ? `<a class="btn" href="https://wa.me/?text=${enc(mensajePlan())}" target="_blank" rel="noopener">💌 Enviárselo a Pablo</a>` : ''}
   </section>`;
 }
@@ -104,14 +177,17 @@ const boton = ({ dato, si, titulo, sub, derecha = '' }) => `<button class="fila 
 
 function vistaPrevision() {
   if (!calc) return '<p class="intro">Cargando…</p>';
-  const lista = calc.analisis.map((an) => ({ an, p: plan.sab ? notaDe(plan.sab, an.sitio.id) : null }))
-    .sort((a, b) => (b.p?.nota ?? -1) - (a.p?.nota ?? -1) || b.an.base - a.an.base);
-  return `<p class="intro">${plan.sab ? `Cómo pinta el ${rangoFinde(plan.sab)}` : 'Nieve que hay ahora en cada sitio'}</p>
-    <ul class="lista">${lista.map(({ an, p }) => `<li>${boton({
-      dato: `data-sitio="${an.sitio.id}"`, si: plan.sitio === an.sitio.id, titulo: an.sitio.nombre,
-      sub: `${an.sitio.coche}${an.nieve7 ? ` · +${an.nieve7} cm esta semana` : ''}`,
-      derecha: `<span class="der"><b>${(p || an).base} cm</b>${plan.sab ? pill(p) : ''}</span>`,
-    })}</li>`).join('')}</ul>
+  const foco = enFoco(), s = foco.sitio, si = plan.sitio === s.id;
+  const p = plan.sab ? notaDe(plan.sab, s.id) : null;
+  return `<p class="intro">${plan.sab ? `Cómo pinta el ${rangoFinde(plan.sab)}` : 'Nieve que hay ahora'} <span>Toca una estación del mapa</span></p>
+    <div id="hueco-mapa" class="hueco-mapa"><button class="ver-todos" data-accion="centrar">⤢ Ver todas</button></div>
+    <section class="ficha ${si ? 'si' : ''}">
+      <div class="f-top"><div><b>${s.nombre}</b><small>${s.zona} · ${s.coche} desde ${CASA.nombre}</small></div>
+        <div class="f-cm"><b>${(p || foco).base}</b><small>cm</small></div></div>
+      <p class="f-nota">${s.nota}${foco.nieve7 ? ` ❄️ +${foco.nieve7} cm esta semana.` : ''}</p>
+      ${plan.sab ? `<p class="f-finde">${pill(p)} ${p ? `☀️ ${p.sol} % de sol · 💨 ${p.viento} km/h` : 'Ese finde aún no tiene previsión'}</p>` : ''}
+      <button class="btn ${si ? 'hecho' : ''}" data-sitio="${s.id}">${si ? '✓ Elegido' : `Elegir ${s.nombre}`}</button>
+    </section>
     <p class="pie">Antes de salir, mirad el riesgo de aludes: ${ALUDES.map((a) => `<a href="${a.url}" target="_blank" rel="noopener">${a.nombre.split(' (')[0]}</a>`).join(' · ')}<br>
       Open-Meteo · ${hace(datos.hora)} · <button class="enl" data-accion="recargar">actualizar</button></p>`;
 }
@@ -139,17 +215,17 @@ function vistaAlojamiento() {
   const tope = `&nflt=${enc(`price=EUR-0-${Math.floor(PRESUPUESTO / NOCHES)}-1`)}`;
   const enlace = (d) => (d.refugio ? `https://www.google.com/search?q=${enc(`${d.busca} reserva`)}`
     : `https://www.booking.com/searchresults.es.html?ss=${enc(d.busca)}&group_adults=2&no_rooms=1&group_children=0${fechas}${tope}`);
-  return `<p class="intro">Dónde dormir en ${s.nombre} <span>${NOCHES} noches · máx. ${PRESUPUESTO} €</span></p>
+  return `<p class="intro">Dónde dormir en ${s.nombre} <span>Viernes y sábado noche</span></p>
     <ul class="lista">${s.dormir.map((d, k) => `<li class="con-enlace">${boton({
       dato: `data-aloj="${s.id}:${k}"`, si: plan.aloj === `${s.id}:${k}`, titulo: `${d.emoji} ${d.nombre}`, sub: d.nota,
     })}<a class="ver" href="${enlace(d)}" target="_blank" rel="noopener">${d.refugio ? 'Su web' : plan.sab ? 'Ver libres' : 'Ver'} ↗</a></li>`).join('')}</ul>
-    <p class="pie">${plan.sab ? `«Ver libres» abre Booking del viernes al domingo, solo con lo que cabe en ${PRESUPUESTO} €.` : 'Elige finde y verás lo que queda libre esas fechas.'} En los refugios, mejor confirmar que abren.</p>`;
+    <p class="pie">${plan.sab ? '«Ver libres» abre Booking con vuestras fechas.' : 'Elige finde y verás lo que queda libre esas fechas.'} En los refugios, mejor confirmar que abren.</p>`;
 }
 
 // ── compartir y confeti ──────────────────────────────────────
 function mensajePlan() {
   const p = notaDe(plan.sab, plan.sitio);
-  return `Pablo, ya lo he elegido 😏🎿\n🗓️ ${rangoFinde(plan.sab)}\n🏔️ ${sitioPor(plan.sitio).nombre}\n🛏️ ${alojDe(plan.aloj).item.nombre} (${NOCHES} noches, máx. ${PRESUPUESTO} €)`
+  return `Pablo, ya lo he elegido 😏🎿\n🗓️ ${rangoFinde(plan.sab)}\n🏔️ ${sitioPor(plan.sitio).nombre}\n🛏️ ${alojDe(plan.aloj).item.nombre}`
     + `${p ? `\n❄️ ${p.base} cm de nieve` : ''}\n${URL_APP}#plan=${[plan.sab, plan.sitio, plan.aloj].join('~')}`;
 }
 function confeti() {
@@ -176,10 +252,17 @@ app.addEventListener('click', (e) => {
   else if (d.sitio) elegir({ sitio: plan.sitio === d.sitio ? null : d.sitio }, plan.sitio !== d.sitio);
   else if (d.aloj) elegir({ aloj: plan.aloj === d.aloj ? null : d.aloj }, plan.aloj !== d.aloj);
   else if (d.accion === 'recargar') cargar(true);
+  else if (d.accion === 'instalar') abrirInstalar();
+  else if (d.accion === 'centrar' && mapa) verTodos();
 });
 
 // Enlace que manda Sara: …/nieve/#plan=sab~sitio~sitio:k
 function leerEnlace() {
+  if (location.hash.includes('instalar')) {
+    history.replaceState(null, '', location.pathname);
+    if (!instalada()) setTimeout(abrirInstalar, 700);
+    return;
+  }
   const m = location.hash.match(/plan=([\d-]*)~(\w*)~([\w:]*)/);
   if (!m) return;
   if (sitioPor(m[2])) {
