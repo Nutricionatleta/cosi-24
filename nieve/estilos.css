@@ -128,3 +128,14 @@ main { max-width: 520px; margin: 0 auto; padding: calc(env(safe-area-inset-top) 
 .leaflet-bar a { background: rgba(14, 23, 38, .9) !important; color: var(--txt) !important; border-color: var(--borde) !important; }
 .mapa .leaflet-tile-pane { filter: saturate(.55) brightness(1.02); }
 .mapa, .leaflet-container { background: #e9edf2; }
+
+/* ficha compacta: 2 líneas como máximo */
+.ficha { display: flex; align-items: center; gap: 12px; padding: 12px 14px; }
+.f-txt { flex: 1; min-width: 0; }
+.f-txt b, .f-txt small { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.f-txt b { font-size: 16px; font-weight: 800; }
+.f-txt small { color: var(--suave); font-size: 12px; margin-top: 2px; }
+.f-txt .pill { padding: 1px 7px; }
+.f-btn { flex: none; border: 0; cursor: pointer; padding: 9px 16px; border-radius: 99px; background: var(--hielo); color: #082036; font: 800 14px Nunito, sans-serif; }
+.f-btn.hecho { background: var(--top); }
+.f-btn:active { transform: scale(.96); }

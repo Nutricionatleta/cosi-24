@@ -182,11 +182,10 @@ function vistaPrevision() {
   return `<p class="intro">${plan.sab ? `Cómo pinta el ${rangoFinde(plan.sab)}` : 'Nieve que hay ahora'} <span>Toca una estación del mapa</span></p>
     <div id="hueco-mapa" class="hueco-mapa"><button class="ver-todos" data-accion="centrar">⤢ Ver todas</button></div>
     <section class="ficha ${si ? 'si' : ''}">
-      <div class="f-top"><div><b>${s.nombre}</b><small>${s.zona} · ${s.coche} desde ${CASA.nombre}</small></div>
-        <div class="f-cm"><b>${(p || foco).base}</b><small>cm</small></div></div>
-      <p class="f-nota">${s.nota}${foco.nieve7 ? ` ❄️ +${foco.nieve7} cm esta semana.` : ''}</p>
-      ${plan.sab ? `<p class="f-finde">${pill(p)} ${p ? `☀️ ${p.sol} % de sol · 💨 ${p.viento} km/h` : 'Ese finde aún no tiene previsión'}</p>` : ''}
-      <button class="btn ${si ? 'hecho' : ''}" data-sitio="${s.id}">${si ? '✓ Elegido' : `Elegir ${s.nombre}`}</button>
+      <div class="f-txt"><b>${s.nombre} · ${(p || foco).base} cm</b>
+        <small>${plan.sab ? (p ? `${pill(p)} ☀️ ${p.sol} % · 🚗 ${s.coche}` : `Sin previsión aún · 🚗 ${s.coche}`)
+          : `${foco.nieve7 ? `❄️ +${foco.nieve7} cm · ` : ''}🚗 ${s.coche}`}</small></div>
+      <button class="f-btn ${si ? 'hecho' : ''}" data-sitio="${s.id}">${si ? '✓ Elegido' : 'Elegir'}</button>
     </section>
     <p class="pie">Antes de salir, mirad el riesgo de aludes: ${ALUDES.map((a) => `<a href="${a.url}" target="_blank" rel="noopener">${a.nombre.split(' (')[0]}</a>`).join(' · ')}<br>
       Open-Meteo · ${hace(datos.hora)} · <button class="enl" data-accion="recargar">actualizar</button></p>`;
