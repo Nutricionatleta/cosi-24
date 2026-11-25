@@ -139,3 +139,14 @@ main { max-width: 520px; margin: 0 auto; padding: calc(env(safe-area-inset-top) 
 .f-btn { flex: none; border: 0; cursor: pointer; padding: 9px 16px; border-radius: 99px; background: var(--hielo); color: #082036; font: 800 14px Nunito, sans-serif; }
 .f-btn.hecho { background: var(--top); }
 .f-btn:active { transform: scale(.96); }
+
+/* rutas de skimo (2 líneas por ruta) */
+.rutas { list-style: none; padding: 0; margin-top: 6px; }
+.rutas a { display: flex; align-items: center; gap: 10px; padding: 10px 2px; border-bottom: 1px solid var(--borde); color: inherit; text-decoration: none; }
+.rutas a:active { opacity: .6; }
+.r-txt { flex: 1; min-width: 0; }
+.r-txt b, .r-txt small { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.r-txt b { font-weight: 800; }
+.r-txt small { color: var(--suave); font-size: 12px; margin-top: 1px; }
+.rutas i { font-style: normal; color: var(--suave); font-size: 20px; }
+.seccion { font-size: 15px; font-weight: 800; margin-top: 18px; }

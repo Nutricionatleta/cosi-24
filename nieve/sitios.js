@@ -2,6 +2,7 @@
 //  SITIOS DE SKIMO — todo lo editable está aquí.
 //  alt = cota (m) a la que se mira la nieve (zona de subida).
 //  coche = tiempo aproximado en coche desde ORIGEN.
+//  rutas = clásicas de skimo con datos contrastados (fuente en url). Sin dato fiable, no se pone.
 //  dormir = ideas de alojamiento; «busca» es lo que se busca en Booking/Airbnb/Maps.
 //           refugio: true → se reserva en su web (no sale en Booking).
 // ─────────────────────────────────────────────────────────────
@@ -11,6 +12,7 @@ export const SITIOS = [
   // desvio = px para separar en el mapa burbujas que caen muy juntas
   { id: 'nuria', nombre: 'Vall de Núria', zona: 'Ripollès', lat: 42.3975, lon: 2.1525, alt: 2100, desvio: [-6, 0], coche: '1 h 45 + cremallera',
     web: 'https://pirineu365.cat/valldenuria/inici/', nota: 'Subida al Puigmal o a Noufonts desde el santuario.', pueblo: 'Queralbs',
+    rutas: [{nombre: "Puigmal por la Coma de l'Embut",desnivel: 941,salida: "el santuario",url: "https://pirineu365.cat/en/valldenuria/experiences/ski-mountaineering/"}],
     dormir: [
       { nombre: 'Hotel Vall de Núria', tipo: 'Hotel', emoji: '🏨', nota: 'En el mismo santuario: sales a esquiar desde la puerta.', busca: 'Hotel Vall de Núria' },
       { nombre: 'Alberg Pic de l’Àliga', tipo: 'Albergue', emoji: '🛖', nota: 'Albergue en lo alto del valle, con vistas a todo Núria.', busca: 'Alberg Pic de l\'Àliga Núria', refugio: true },
@@ -18,6 +20,7 @@ export const SITIOS = [
     ] },
   { id: 'vallter', nombre: 'Vallter 2000', zona: 'Ripollès', lat: 42.4256, lon: 2.2647, alt: 2200, desvio: [10, 38], coche: '2 h 15',
     web: 'https://pirineu365.cat/vallter/inici/', nota: 'Circo bajo el Bastiments. De lo más cerca.', pueblo: 'Setcases',
+    rutas: [{nombre: "Bastiments por el Coll de la Marrana",desnivel: 875,salida: "el parking de Vallter",url: "https://es.wikiloc.com/rutas-splitboard/bastiments-46989068"}],
     dormir: [
       { nombre: 'Refugi d’Ulldeter', tipo: 'Refugio', emoji: '⛺', nota: 'Refugio de montaña junto a la estación: lo más skimo que hay.', busca: 'Refugi d\'Ulldeter', refugio: true },
       { nombre: 'Casa rural en Setcases', tipo: 'Casa rural', emoji: '🏡', nota: 'El último pueblo antes de subir a Vallter.', busca: 'Setcases' },
@@ -25,6 +28,7 @@ export const SITIOS = [
     ] },
   { id: 'cerdanya', nombre: 'La Molina · Masella', zona: 'Cerdanya', lat: 42.345, lon: 1.92, alt: 2100, coche: '1 h 50',
     web: 'https://www.masella.com/', nota: 'Tosa d’Alp y Puigmal por la Cerdanya.', pueblo: 'Alp',
+    rutas: [{nombre: "Tosa d'Alp",desnivel: 550,horas: "2 h 15",salida: "Coll de Pal",url: "https://www.xiruca.com/sites/default/files/track/TosaAlp_imprimir.pdf"},{nombre: "Puigllançada + Tosa d'Alp",desnivel: 775,horas: "4 h 30",salida: "Coll de Pal",url: "https://femturisme.cat/es/rutas/ruta-semi-circular-en-tosa-de-alp-y-puigllancada"}],
     dormir: [
       { nombre: 'Cap del Rec', tipo: 'Refugio', emoji: '⛺', nota: 'Refugio en mitad del bosque, en Lles de Cerdanya.', busca: 'Cap del Rec Lles de Cerdanya', refugio: true },
       { nombre: 'Casa rural en Alp', tipo: 'Casa rural', emoji: '🏡', nota: 'A 10 min de La Molina y de Masella.', busca: 'Alp, Girona' },
@@ -44,12 +48,14 @@ export const SITIOS = [
     ] },
   { id: 'andorra', nombre: 'Grandvalira', zona: 'Andorra', lat: 42.5761, lon: 1.6676, alt: 2300, coche: '3 h',
     web: 'https://www.grandvalira.com/', nota: 'Cota alta: de las nieves más seguras.', pueblo: 'Soldeu',
+    rutas: [{nombre: "Pic de Montmalús",dificultad: "Moderada",desnivel: 671,horas: "2 h 15",salida: "Grau Roig",url: "https://visitandorra.com/en/ski/skimo-pic-de-montmalus"},{nombre: "Pic dels Pedrons",dificultad: "Moderada",desnivel: 620,horas: "2 h",salida: "Pas de la Casa",url: "https://visitandorra.com/en/ski/skimo-pic-dels-pedrons"}],
     dormir: [
       { nombre: 'Hotel en Soldeu', tipo: 'Hotel', emoji: '🏨', nota: 'A pie de pistas.', busca: 'Soldeu' },
       { nombre: 'Apartamento en Canillo', tipo: 'Apartamento', emoji: '🏠', nota: 'Más tranquilo, con telecabina a las pistas.', busca: 'Canillo' },
     ] },
   { id: 'baqueira', nombre: 'Baqueira-Beret', zona: 'Val d’Aran', lat: 42.6995, lon: 0.933, alt: 2000, coche: '3 h 45',
     web: 'https://www.baqueira.es/', nota: 'Le entra el Atlántico: la nieve más fiable.', pueblo: 'Salardú',
+    rutas: [{nombre: "Tuc Dossau",desnivel: 670,salida: "el Pla de Beret",url: "https://www.conselharan.org/wp-content/uploads/2015/12/AAFF_Triptic_Montanya_BB2015_03.pdf"}],
     dormir: [
       { nombre: 'Casa rural en Salardú', tipo: 'Casa rural', emoji: '🏡', nota: 'Pueblo de piedra a 5 min de Baqueira.', busca: 'Salardú' },
       { nombre: 'Apartamento en Baqueira 1500', tipo: 'Apartamento', emoji: '🏠', nota: 'A pie de pistas. Repetimos Baqueira 💛', busca: 'Baqueira' },
