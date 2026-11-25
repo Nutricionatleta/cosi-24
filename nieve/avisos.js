@@ -72,4 +72,4 @@ if (lineas.length) {
 
 // GitHub apaga los cron tras 60 días sin actividad: se anota una revisión cada 3 semanas para mantenerlo vivo.
 if (!estado.vivo || diasEntre(estado.vivo, hoy) >= 21) estado.vivo = hoy;
-if (SECO !== 'true') writeFileSync(RUTA_ESTADO, `${JSON.stringify(estado, null, 2)}\n`);
+if (SECO !== 'true' && NTFY_TOPIC) writeFileSync(RUTA_ESTADO, `${JSON.stringify(estado, null, 2)}\n`);
